@@ -32,11 +32,11 @@ public class EligibilityService {
             reasons.add("EMI_EXCEEDS_60_PERCENT");
         }
 
-        return reasons;
-    }
-
-    public boolean isEmiWithinOfferLimit(BigDecimal emi, BigDecimal monthlyIncome) {
         BigDecimal fiftyPercent = monthlyIncome.multiply(new BigDecimal("0.50")).setScale(2, RoundingMode.HALF_UP);
-        return emi.compareTo(fiftyPercent) <= 0;
+        if (emi.compareTo(fiftyPercent) > 0 && emi.compareTo(sixtyPercent) <= 0) {
+            reasons.add("EMI_EXCEEDS_50_PERCENT");
+        }
+
+        return reasons;
     }
 }

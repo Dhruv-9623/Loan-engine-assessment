@@ -80,18 +80,24 @@ class EligibilityServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenEmiExceedsFiftyPercentForOffer() {
-        BigDecimal emi = new BigDecimal("40001");
-        BigDecimal income = new BigDecimal("80000");
+    void shouldRejectWhenEmiBetween50And60PercentOfIncome() {
+        LoanApplicationRequest request = buildRequest(30, 720, 75000, 36);
+        BigDecimal emi = new BigDecimal("40000");
 
-        assertFalse(eligibilityService.isEmiWithinOfferLimit(emi, income));
+        List<String> reasons = eligibilityService.evaluate(request, emi);
+
+        assertTrue(reasons.contains("EMI_EXCEEDS_50_PERCENT"));
     }
 
     @Test
-    void shouldReturnTrueWhenEmiWithinFiftyPercentForOffer() {
-        BigDecimal emi = new BigDecimal("39000");
-        BigDecimal income = new BigDecimal("80000");
+    void shouldCollectMultipleRejectionReasons() {
+        LoanApplicationRequest request = buildRequest(58, 550, 20000, 120);
+        BigDecimal emi = new BigDecimal("15000");
 
-        assertTrue(eligibilityService.isEmiWithinOfferLimit(emi, income));
+        List<String> reasons = eligibilityService.evaluate(request, emi);
+
+        assertTrue(reasons.contains("CREDIT_SCORE_TOO_LOW"));
+        assertTrue(reasons.contains("AGE_TENURE_LIMIT_EXCEEDED"));
+        assertTrue(reasons.contains("EMI_EXCEEDS_60_PERCENT"));
     }
 }
