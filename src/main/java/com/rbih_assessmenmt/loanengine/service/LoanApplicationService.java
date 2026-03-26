@@ -61,15 +61,8 @@ public class LoanApplicationService {
             return LoanApplicationResponse.rejected(application.getId(), rejectionReasons);
         }
 
-        BigDecimal monthlyIncome = BigDecimal.valueOf(request.getApplicant().getMonthlyIncome());
-        if (!eligibilityService.isEmiWithinOfferLimit(emi, monthlyIncome)) {
-            application.setStatus(ApplicationStatus.REJECTED);
-            application.setRiskband(null);
-            repository.save(application);
-            return LoanApplicationResponse.rejected(application.getId(), List.of("EMI_EXCEEDS_50_PERCENT_FOR_OFFER"));
-        }
-
-        BigDecimal totalPayable = emi.multiply(BigDecimal.valueOf(tenureMonths)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalPayable = emi.multiply(BigDecimal.valueOf(tenureMonths))
+                .setScale(2, RoundingMode.HALF_UP);
         OfferResponse offer = new OfferResponse(interestRate, tenureMonths, emi, totalPayable);
 
         application.setStatus(ApplicationStatus.APPROVED);
